@@ -125,3 +125,44 @@ class Network(object):
             for b, w in zip(self.biases, self.weights):
                 a = sigmoid(np.dot(w, a) + b)
             return a
+
+        def SGD(self, training_data, epochs, mini_batch_size, eta,
+                lmbda=0.0,
+                evaluation_data=None,
+                monitor_evaluation_cost=False,
+                monitor_evaluation_accuracy=False,
+                monitor_training_cost=False,
+                monitor_training_accuracy=False):
+            """Train the neural network using mini-batch stochastic gradient
+            descent.  The "training_data" is a list of tuples "(x, y)"
+            representing the training inputs and the desired outputs.  The
+            other non-optimal parameters are self-explanatory, as is the
+            regularization parameter "lmbda".  The method also accepts
+            "evaluation_data", usually either the validation or test
+            data.  We can monitor the cost and accuracy on either the
+            evaluation data or the training data, by setting the
+            approriate flags.  The method returns a tuple containing four
+            lists: the (pre-epoch) costs on the evaluation data, the
+            accuracies on the evaluation data, the costs on the training
+            data, and the accuracies on the training data.  All values are
+            evaluated at the end of each training epoch.  So, for example,
+            if we train for 30 epochs, then the first element of the tuple
+            will be a 30-element list containing the cost on the
+            evaluation data at the end of each epoch. Note that the lists
+            are empty if the corresponding flag is not set.
+
+            """
+            if evaluation_data: n_data = len(evaluation_data)
+            n = len(training_data)
+            evaluation_cost, evaluation_accuracy = [], []
+            training_cost, training_accuracy = [], []
+            for j in xrange(epochs):
+                random.shuffle(training_data)
+                mini_batches = [
+                    training_data[k: k + mini_batch_size]
+                    for k in xrange(0, n, mini_batch_size)]
+                for mini_batch in mini_batches:
+                    self.update_mini_batch(
+                        mini_batch, eta, lmbda, len(training_data))
+                print "Epoch %s training complete" % j
+                pass # CONTINUE HERE
