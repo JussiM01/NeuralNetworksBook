@@ -205,3 +205,94 @@ class Network(object):
                             for w, nw in zip(self.weights, nabla_w)]
             self.biases = [b - (eta/len(mini_batch))*nb
                             for b, nb in zip(self.biases, nabla_b)]
+
+        def backprop(self, x, y):
+            """Return a tuple "(nabla_b, nabla_w)" representing the
+            gradient for the cost function C_x.  "nabla_b" and
+            "nabla_w" are layer-by-layer lists of numpy arrays, similar
+            to "self.biases" and "self.weights"."""
+            nabla_b = [np.zeros(b.shape) for b in self.biases]
+            nabla_w = [np.zeros(w.shape) for w in self.weights]
+            # feedforward
+            activation = x
+            activations = [x] # list to store all the activations, layer by layer
+            zs = [] # list to store all the z vectors, layer by layer
+            for b, w in zip(self.biases, self.weights):
+                z = np.dot(w, activation) + b
+                zs.append(z)
+                activation = sigmoid(z)
+                activations.append(activation)
+            # backword pass
+            delta = (self.cost).delta(zs[-1], activations[-1], y)
+            nabla_b[-1] = delta
+            nabla_w[-1] = np.dot(delta, activations[-2].transpose())
+            # Note that the variable l in the loop below is used a little
+            # differently to the notation in Chapter 2 of the book.  Here,
+            # l = 1 means the last layer of neurons, l = 2 is the
+            # second-last layer and so on.  It's a renumbering of the
+            # scheme in the book, used here to take advantage of the fact
+            # that Python can use negative indices in lists.
+            for l in xrange(2, self.num_layers):
+                z = zs[-l]
+                sp = sigmoid_prime(z)
+                delta = np.dot(self.weights[-l + 1].transpose(), delta) * sp
+                nabla_b[-l] = delta
+                nabla_w[-l] = np.dot(delta, activations[-l - 1].transpose())
+            return (nabla_b, nabla_w)
+
+        def accuracy(self, data, convert=False):
+            """Return the number of inputs in "data" for which the neural
+            network outputs the correct result. The neural network's
+            output is assumed to be the index of whichever neuron in the
+            final layer has the highest activation.
+
+            The flag "convert" should be set to False if the data set is
+            validation or test data (the usual case), and to True if the
+            data set is the training data. The need for this flag arises
+            due to differences in the way the results "y" are
+            represented in the different data sets.  In particular, it
+            flags wheter we need to convert between the different
+            representations. It may seem strange to use different
+            representations for the different data sets.  Why not use the
+            same representation for all the three data sets?  It's done for
+            efficiency reasons -- the program usually evaluates the cost
+            on the training data and the accuracy on other data sets.
+            These are different types of computations, and using different
+            representations speeds things up.  More details on the
+            representations can be found in
+            mnist_loader.load_data_wrapper.
+
+            """
+            if convert:
+                results = [(np.argmax(self.feedforward(x)), np.argmax(y))
+                            for (x, y) in data]
+            else:
+                results = [(np.argmax(self.feedforward(x)), y)
+                            for (x, y) in data]
+            return sum(int(x == y) for (x, y) in results)
+
+        def total_cost(self, data, lmbda, convert=False):
+            """Return the total cost for the data set "data".  The flag
+            "convert" should be set to False if the data set is the
+            training data (the usual case), and to True if the data set is
+            the validation data.  See comments on the similar (but
+            reversed) convention for the "accuracy" method, above,
+            """
+            cost = 0.0
+            for x, y in data:
+                a = self.feedforward(x)
+                if convert: y = vectoriced_result(y)
+                cost += self.cost.fn(a, y)/len(data)
+            cost += 0.5 * (lmbda/len(data)) * (
+                np.linalg.norm(w)**2 for w in self.weights)
+            return cost
+
+        def save(self, filename):
+            """Save the neural network to the file "filename"."""
+            data = {"sizes": self.sizes,
+                    "weights": [w.tolist() for w in self.weights],
+                    "biases": [b.tolist() for b in self.biases],
+                    "cost": str(self.cost.__name__)}
+            f = open(filename, "w")
+            json.dump(data, f)
+            f.close()
