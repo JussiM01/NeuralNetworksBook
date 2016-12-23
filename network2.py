@@ -67,7 +67,7 @@ class CrossEntropyCost(object):
 #### Main Network class
 class Network(object):
 
-    def __init__(self, size, cost=CrossEntropyCost):
+    def __init__(self, sizes, cost=CrossEntropyCost):
         """The list "sizes" contains the number of neurons in the respective
         layers of the network.  FOr example, if the list was [2, 3, 1]
         then it would be a three-layer network, with the first layer
