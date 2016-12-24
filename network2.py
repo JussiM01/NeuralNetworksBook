@@ -283,7 +283,7 @@ class Network(object):
             a = self.feedforward(x)
             if convert: y = vectoriced_result(y)
             cost += self.cost.fn(a, y)/len(data)
-        cost += 0.5 * (lmbda/len(data)) * (
+        cost += 0.5 * (lmbda/len(data)) * sum(
             np.linalg.norm(w)**2 for w in self.weights)
         return cost
 
