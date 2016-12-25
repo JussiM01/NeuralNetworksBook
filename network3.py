@@ -99,3 +99,23 @@ class Network(object):
                 prev_layer.output, prev_layer.output_dropout, self.mini_batch_size)
         self.output = self.layers[-1].output
         self.output_dropout = self.layers[-1].output_dropout
+
+    def SGD(self, training_data, epochs, mini_batch_size, eta
+            validation_data, test_data, lmbda=0.0):
+        """Train the network using mini-batch stochastic gradient descent."""
+        training_x, training_y = training_data
+        validation_x, validation_y = validation_data
+        test_x, test_y = test_data
+
+        # compute number of minibatches for training, validation and testing
+        num_training_batches = size(training_data)/mini_batch_size
+        num_validation_batches = size(validation_data)/mini_batch_size
+        num_test_batches = size(test_data)/mini_batch_size
+
+        # definen the (regularized) cost function, symbolic gradients, and updates
+        l2_norm_squared = sum([(layer.w**2).sum() for layer in self.layers])
+        cost = self.layers[-1].cost(self)+\
+                0.5*lmbda*l2_norm_squared/num_training_batches
+        grads = T.grad(cost, self.params)
+        updates = [(param, param - eta*grad)
+                    for param, grad in zip(self.params, grads)]
