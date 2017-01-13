@@ -49,7 +49,7 @@ from theano.tensor.nnet import sigmoid
 from theano.tensor import tanh
 
 #### Constants
-GPU = True
+GPU = False
 if GPU:
     print "Try to run under a GPU.  If this is not desired, then modify "+\
         "network3.py\nto set the GPU flag to False."
@@ -308,4 +308,4 @@ def dropout_layer(layer, p_dropout):
     srng = shared_randomstreams.RandomStreams(
         np.random.RandomState(0).randint(999999))
     mask = srng.binomial(n=1, p=1-p_dropout, size=layer.shape)
-    return layer*T.cast(mask, theano.config.floatX)    
+    return layer*T.cast(mask, theano.config.floatX)
