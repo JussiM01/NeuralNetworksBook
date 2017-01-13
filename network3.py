@@ -1,6 +1,5 @@
 """network3.py
-
-˝˝˝˝˝˝˝˝˝˝˝˝˝˝
+~~~~~~~~~~~~~~
 
 A Theano-based program for training and running simple neural
 networks.
@@ -100,7 +99,7 @@ class Network(object):
         self.output = self.layers[-1].output
         self.output_dropout = self.layers[-1].output_dropout
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta
+    def SGD(self, training_data, epochs, mini_batch_size, eta,
             validation_data, test_data, lmbda=0.0):
         """Train the network using mini-batch stochastic gradient descent."""
         training_x, training_y = training_data
@@ -190,37 +189,37 @@ class ConvPoolLayer(object):
 
     """
 
-    def __init__(self, filter_shape, image_shape, poolsize=(2, 2)
+    def __init__(self, filter_shape, image_shape, poolsize=(2, 2),
                 activation_fn=sigmoid):
-    """'filter_shape' is a tuple of length 4, whose entries are the number
-    of filters, the number of input feature maps, the filter height, and the
-    filter width.
+        """'filter_shape' is a tuple of length 4, whose entries are the number
+        of filters, the number of input feature maps, the filter height, and the
+        filter width.
 
-    'image_shape' is a tuple of length 4, whose entries are the
-    mini-batch size, number of input feature maps, the image
-    height, and the image width.
+        'image_shape' is a tuple of length 4, whose entries are the
+        mini-batch size, number of input feature maps, the image
+        height, and the image width.
 
-    'poolsize' is a tuple of length 2, whose entries are the y and
-    x pooling sizes.
+        'poolsize' is a tuple of length 2, whose entries are the y and
+        x pooling sizes.
 
-    """
-    self.filter_shape = filter_shape
-    self.image_shape = image_shape
-    self.poolsize = poolsize
-    self.activation_fn = activation_fn
-    # initialize weights and biases
-    n_out = (filter_shape[0]*np.prod(filter_shape[2:])/np.prod(poolsize))
-    self.w = theano.shared(
-        np.asarray(
-            np.random.normal(loc=0, scale=np.sqrt(1.0/n_out), size=filter_shape),
-            dtype=theano.config.floatX)
-        borrow=True)
-    self.b = theano.shared(
-        np.asarray(
-            np.random.normal(loc=0, scale=1.0, size(filter_shape[0],)),
-            dtype=theano.config.floatX),
-        borrow=True)
-    self.params = [self.w, self.b]
+        """
+        self.filter_shape = filter_shape
+        self.image_shape = image_shape
+        self.poolsize = poolsize
+        self.activation_fn = activation_fn
+        # initialize weights and biases
+        n_out = (filter_shape[0]*np.prod(filter_shape[2:])/np.prod(poolsize))
+        self.w = theano.shared(
+            np.asarray(
+                np.random.normal(loc=0, scale=np.sqrt(1.0/n_out), size=filter_shape),
+                dtype=theano.config.floatX),
+            borrow=True)
+        self.b = theano.shared(
+            np.asarray(
+                np.random.normal(loc=0, scale=1.0, size=(filter_shape[0],)),
+                dtype=theano.config.floatX),
+            borrow=True)
+        self.params = [self.w, self.b]
 
     def set_inpt(self, inpt, inpt_dropout, mini_batch_size):
         self.inpt = inpt.reshape(self.image_shape)
