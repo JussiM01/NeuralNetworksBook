@@ -60,7 +60,7 @@ else:
         "network3.py\nto set the GPU flag to True."
 
 #### Load MNIST data
-def load_data_shared(filename="../data/mnist.pkl.gz"):
+def load_data_shared(filename="mnist.pkl.gz"):
     f = gzip.open(filename, 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
