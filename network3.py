@@ -89,7 +89,7 @@ class Network(object):
         self.mini_batch_size = mini_batch_size
         self.params = [param for layer in self.layers for param in layer.params]
         self.x = T.matrix("x")
-        self.y = T.matrix("y")
+        self.y = T.ivector("y")
         init_layer = self.layers[0]
         init_layer.set_inpt(self.x, self.x, self.mini_batch_size)
         for j in xrange(1, len(self.layers)):
@@ -121,7 +121,7 @@ class Network(object):
 
         # define functions to train a mini-batch, and to compute the
         # accuracy in validation and test mini-batches.
-        i = T.scalar() # mini-batch index
+        i = T.lscalar() # mini-batch index
         train_mb = theano.function(
             [i], cost, updates=updates,
             givens={
@@ -155,11 +155,11 @@ class Network(object):
         # Do the actual training
         best_validation_accuracy = 0.0
         for epoch in xrange(epochs):
-            for mini_batch_index in xrange(num_training_batches):
-                iteration = num_training_batches * epoch + mini_batch_index
+            for minibatch_index in xrange(num_training_batches):
+                iteration = num_training_batches * epoch + minibatch_index
                 if iteration % 100 == 0:
                     print("Training mini-batch number {0}".format(iteration))
-                cost_ij = train_mb(mini_batch_index)
+                cost_ij = train_mb(minibatch_index)
                 if (iteration + 1) % num_training_batches == 0:
                     validation_accuracy = np.mean(
                         [validate_mb_accuracy(j) for j in xrange(num_validation_batches)])
@@ -185,7 +185,7 @@ class ConvPoolLayer(object):
     """Used to create a combination of a convolutional and a max-pooling
     layer.  A more sophisticated implementation would separate the
     two, but for our purposes we'll always use them together, and it
-    simplifices the code, so it makes sense to combine them.
+    simplifies the code, so it makes sense to combine them.
 
     """
 
@@ -263,7 +263,7 @@ class FullyConnectedLayer(object):
             T.dot(self.inpt_dropout, self.w) + self.b)
 
     def accuracy(self, y):
-        """Return the accuracy for the mini-batch."""
+        "Return the accuracy for the mini-batch."
         return T.mean(T.eq(y, self.y_out))
 
 class SoftmaxLayer(object):
@@ -290,17 +290,17 @@ class SoftmaxLayer(object):
         self.output_dropout = softmax(T.dot(self.inpt_dropout, self.w) + self.b)
 
     def cost(self, net):
-        """Return the log-likelihood cost."""
+        "Return the log-likelihood cost."
         return -T.mean(T.log(self.output_dropout)[T.arange(net.y.shape[0]), net.y])
 
     def accuracy(self, y):
-        """Return the accuracy for the mini-batch."""
+        "Return the accuracy for the mini-batch."
         return T.mean(T.eq(y, self.y_out))
 
 
 #### Miscellanea
 def size(data):
-    """Return the size of the dataset 'data'."""
+    "Return the size of the dataset 'data'."
     return data[0].get_value(borrow=True).shape[0]
 
 def dropout_layer(layer, p_dropout):
